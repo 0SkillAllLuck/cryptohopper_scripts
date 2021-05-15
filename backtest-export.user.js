@@ -52,7 +52,7 @@
           #test_result_div > div > p.m-t-10 {
             display: none !important;
           }
-          #result_trades_div_test > div {{
+          #result_trades_div_test > div {
             max-height: none !important;
           }
           #result_chart_div_test {
