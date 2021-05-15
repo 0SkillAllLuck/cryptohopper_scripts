@@ -53,7 +53,7 @@
             display: none !important;
           }
           #result_trades_div_test > div {{
-            max-height: auto !important;
+            max-height: none !important;
           }
           #result_chart_div_test {
             page-break-after: always !important;
