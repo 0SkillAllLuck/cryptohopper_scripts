@@ -30,11 +30,11 @@ var coinIndex = 0;
         }
     }
 
-    function embedFunction(s) {
-        document.body.appendChild(document.createElement('script')).innerHTML=s.toString().replace(/([\s\S]*?return;){2}([\s\S]*)}/,'$2');
-    }
-
     function doBacktestAllowedCoins() {
+        var overrideScript = document.createElement('script');
+        overrideScript.innerHTML = socketMessagesHandler.toString().replace(/([\s\S]*?return;){2}([\s\S]*)}/,'$2');
+        document.body.appendChild(overrideScript);
+
         $.get('https://www.cryptohopper.com/config', function(configPage) {
             jQuery('#coinList').val($(configPage).find('#allowed_coins').val().join(','));
             jQuery('#coinIndex').val('0');
@@ -45,8 +45,6 @@ var coinIndex = 0;
     }
 
     function addElements() {
-        embedFunction(socketMessagesHandler);
-
         const backtestAllowedCoinsCoinList = jQuery('<input id="coinList" hidden></select>');
         const backtestAllowedCoinsCoinIndex = jQuery('<input id="coinIndex" hidden></input>');
         const backtestAllowedCoinsButton = jQuery('<button type="button" class="btn btn-success btn-lg">Backtest allowed Coins</button>');
