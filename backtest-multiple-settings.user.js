@@ -21,23 +21,31 @@
     redrawChart("nottest")) : "resettradestest" == d.type ? (jQuery("#result_trades_table_test tbody tr").remove(),result_chart_data_markings = [],redrawChart("test")) : "result" == d.type ? outputBackTest(d.result) : "resulttest" == d.type ? outputConfigTest(d.result) : "error" == d.type && backtestErrorMessage(d.error)
 
         if (d.type == "result" || d.type == "resulttest") {
-            const tpList = jQuery('#tpList').val().split(",");
-            const tpIndex = parseInt(jQuery('#tpIndex').val());
-            const slList = jQuery('#slList').val().split(",");
-            const slIndex = parseInt(jQuery('#slIndex').val());
-            const tslList = jQuery('#tslList').val().split(",");
-            const tslIndex = parseInt(jQuery('#tslIndex').val());
+            var tpList = jQuery('#tpList').val().split(",").filter(tp => tp.trim().length > 0);
+            var tpIndex = parseInt(jQuery('#tpIndex').val());
+            var slList = jQuery('#slList').val().split(",").filter(sl => sl.trim().length > 0);
+            var slIndex = parseInt(jQuery('#slIndex').val());
+            var tslList = jQuery('#tslList').val().split(",").filter(tsl => tsl.trim().length > 0);
+            var tslIndex = parseInt(jQuery('#tslIndex').val());
 
+            tpIndex += 1;
+            console.log(tpIndex + " " + tpList.length);
             if (tpIndex < tpList.length) {
-                jQuery('#tpIndex').val(tpIndex + 1);
+                jQuery('#tpIndex').val(tpIndex);
             } else {
-                jQuery('#tpIndex').val(0);
+                tpIndex = 0;
+                jQuery('#tpIndex').val(tpIndex);
+
+                slIndex += 1;
                 if (slIndex < slList.length) {
-                    jQuery('#slIndex').val(slIndex + 1);
+                    jQuery('#slIndex').val(slIndex);
                 } else {
-                    jQuery('#slIndex').val(0);
+                    slIndex = 0;
+                    jQuery('#slIndex').val(slIndex);
+
+                    tslIndex += 1;
                     if (slIndex < slList.length) {
-                        jQuery('#tslIndex').val(tslIndex + 1);
+                        jQuery('#slIndex').val(tslIndex);
                     } else {
                         swal({ title: 'Success', text: 'Backtest completed, all settings were tested!', type: 'success' });
                         return;
