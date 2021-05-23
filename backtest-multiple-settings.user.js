@@ -29,7 +29,6 @@
             var tslIndex = parseInt(jQuery('#tslIndex').val());
 
             tpIndex += 1;
-            console.log(tpIndex + " " + tpList.length);
             if (tpIndex < tpList.length) {
                 jQuery('#tpIndex').val(tpIndex);
             } else {
@@ -65,10 +64,14 @@
                 jQuery("#stop_loss_trailing_arm_test").val(tsl[1]).change();
             }
 
-            console.log(tpList[tpIndex] + " " + jQuery("#percentage_profit_test").val());
-            console.log(jQuery("#stop_loss_percentage_test").val());
-            console.log(jQuery("#stop_loss_trailing_percentage_test").val());
-            console.log(jQuery("#stop_loss_trailing_arm_test").val());
+            const tps = jQuery('#tpList').val().split(",").length;
+            const sls = jQuery('#slList').val().split(",").length;
+            const tsls = jQuery('#tslList').val().split(",").length;
+            const totalBacktests = (tps > 0 ? tps : 1) * (sls > 0 ? sls : 1) * (tsls > 0 ? tsls : 1);
+            const current = (tslIndex * sls * tps) + (slIndex * tps) + tpIndex;
+            const percent = 100 * current / totalBacktests;
+            console.log(current);
+            console.log(percent + "% finished, now testing: " + jQuery("#percentage_profit_test").val() + "tp " + jQuery("#stop_loss_percentage_test").val() + "sl " + jQuery("#stop_loss_trailing_percentage_test").val() + "-" + jQuery("#stop_loss_trailing_arm_test").val()+ "tsl");
             setTimeout(function(){ startBackTestConfig(); }, 2000);
         }
     }
@@ -107,7 +110,6 @@
             const tps = jQuery('#tpList').val().split(",").length;
             const sls = jQuery('#slList').val().split(",").length;
             const tsls = jQuery('#tslList').val().split(",").length;
-
             const totalBacktests = (tps > 0 ? tps : 1) * (sls > 0 ? sls : 1) * (tsls > 0 ? tsls : 1);
 
             return swal({
