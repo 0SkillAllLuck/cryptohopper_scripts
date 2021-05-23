@@ -2,16 +2,13 @@
 // @name         CryptoHopper Backtest allowed coins
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtest-allowed-coins.user.js
-// @version      0.1
+// @version      0.2
 // @description  Add a "Backtest allowed Coins" button to the Backtest Page.
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
 // @icon         https://www.google.com/s2/favicons?domain=www.cryptohopper.com
 // @grant        GM_addStyle
 // ==/UserScript==
-
-var coinList =  [];
-var coinIndex = 0;
 
 (function () {
     'use strict';
@@ -24,9 +21,16 @@ var coinIndex = 0;
     redrawChart("nottest")) : "resettradestest" == d.type ? (jQuery("#result_trades_table_test tbody tr").remove(),result_chart_data_markings = [],redrawChart("test")) : "result" == d.type ? outputBackTest(d.result) : "resulttest" == d.type ? outputConfigTest(d.result) : "error" == d.type && backtestErrorMessage(d.error)
 
         if (d.type == "result" || d.type == "resulttest") {
-            jQuery('#coinIndex').val(parseInt(jQuery('#coinIndex').val()) + 1);
-            jQuery("#coin_test").val(jQuery('#coinList').val().split(",")[parseInt(jQuery('#coinIndex').val())]).change();
-            setTimeout(function(){ startBackTestConfig(); }, 2500);
+            const currentList = jQuery('#coinList').val().split(",");
+            const currentIndex = parseInt(jQuery('#coinIndex').val());
+            if (currentIndex < currentList.length) {
+                jQuery('#coinIndex').val(currentIndex + 1);
+                jQuery("#coin_test").val(currentList[currentIndex]).change();
+                setTimeout(function(){ startBackTestConfig(); }, 2000);
+            } else {
+                swal({ title: 'Success', text: 'Backtest completed, all allowed coins were tested!', type: 'success' });
+            }
+
         }
     }
 
@@ -37,15 +41,15 @@ var coinIndex = 0;
 
         $.get('https://www.cryptohopper.com/config', function(configPage) {
             jQuery('#coinList').val($(configPage).find('#allowed_coins').val().join(','));
-            jQuery('#coinIndex').val('0');
+            jQuery('#coinIndex').val('1');
 
-            jQuery("#coin_test").val(jQuery('#coinList').val().split(",")[parseInt(jQuery('#coinIndex').val())]).change();
+            jQuery("#coin_test").val(jQuery('#coinList').val().split(",")[0]).change();
             setTimeout(function(){ startBackTestConfig(); }, 250);
         });
     }
 
     function addElements() {
-        const backtestAllowedCoinsCoinList = jQuery('<input id="coinList" hidden></select>');
+        const backtestAllowedCoinsCoinList = jQuery('<input id="coinList" hidden></input>');
         const backtestAllowedCoinsCoinIndex = jQuery('<input id="coinIndex" hidden></input>');
         const backtestAllowedCoinsButton = jQuery('<button type="button" class="btn btn-success btn-lg">Backtest allowed Coins</button>');
         backtestAllowedCoinsButton.on('click', () => doBacktestAllowedCoins());
