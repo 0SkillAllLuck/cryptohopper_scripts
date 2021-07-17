@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Learn allowed coins
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-learn-allowed-coins.user.js
-// @version      0.1
+// @version      0.2
 // @description  Add a learn allowed coins option to CryptoHopper AI training page
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -16,26 +16,30 @@
     function trainCoinPairs(config, coinPairs, currentQueueSize) {
         if (coinPairs.length < 1) {
             swal({
-                title: 'Success',
-                text: 'All allowed coins added to training queue!',
                 type: 'success',
-            });
+                title: 'Allowed coins added',
+                text: "All allowed coins added to training queue!",
+                showConfirmButton: false,
+                timer: 1250,
+                timerProgressBar: true,
+            })
             return finishTraining(currentQueueSize);
         }
 
         if (currentQueueSize >= max_trainings) {
             const pairsRemaining = coinPairs.join(', ');
             swal({
-                title: 'Full queue',
-                text: `Training queue filled up! Remaining coins: ${pairsRemaining}`,
                 type: 'error',
-            });
+                title: 'Full queue',
+                text: "Training queue filled up! Remaining coins: ${pairsRemaining}",
+                showConfirmButton: false,
+                timer: 1250,
+                timerProgressBar: true,
+            })
             return finishTraining(currentQueueSize);
         }
 
         const currentCoinPair = coinPairs.pop();
-        console.log(`Starting training for coin pair ${currentCoinPair}...`);
-
         doApiCall(
             'convertmarket',
             {
@@ -51,22 +55,35 @@
                     },
                     (_result) => {
                         console.log(`${currentCoinPair} added to training queue`);
-
                         refreshAITrainings();
-                        setTimeout(
-                            () => trainCoinPairs(config, coinPairs, currentQueueSize + 1),
-                            1200
-                        );
+
+                        setTimeout(() => trainCoinPairs(config, coinPairs, currentQueueSize + 1), 1250);
                     },
                     (error) => {
-                        swal({ title: 'Error', text: error, timer: 4e3, type: 'error' });
-                        finishTraining(currentQueueSize);
+                        swal({
+                            type: 'error',
+                            title: 'Error',
+                            text: error,
+                            showConfirmButton: false,
+                            timer: 1250,
+                            timerProgressBar: true,
+                        }).then(() => {
+                            finishTraining(currentQueueSize);
+                        })
                     }
                 );
             },
             (error) => {
-                swal({ title: 'Error', text: error, timer: 4e3, type: 'error' });
-                finishTraining(currentQueueSize);
+                swal({
+                    type: 'error',
+                    title: 'Error',
+                    text: error,
+                    showConfirmButton: false,
+                    timer: 1250,
+                    timerProgressBar: true,
+                }).then(() => {
+                    finishTraining(currentQueueSize);
+                })
             }
         );
     }
@@ -76,11 +93,13 @@
         config.id = jQuery('#ai_id').val();
         if (config.id == 'new') {
             return swal({
+                type: 'error',
                 title: 'Error',
                 text: 'You cannot train a new AI. Please save your AI first.',
-                timer: 4e3,
-                type: 'error',
-            });
+                showConfirmButton: false,
+                timer: 1250,
+                timerProgressBar: true,
+            })
         }
 
         const button = jQuery('#learnAIButton');
@@ -92,25 +111,16 @@
         config.strategy_id = strategy.val();
         config.strategy_type = strategy.data('type');
 
-        // Get training queue and start training
         doApiCall(
             'loadaitraining',
             {
                 id: config.id,
             },
             (result) => {
-                // Filter out unavailable pairs
-                const availablePairs = window
-                    .jQuery('#select_market option')
-                    .map(function () {
-                        return jQuery(this).val();
-                    })
-                    .get();
-
                 coinPairs = coinPairs.filter((coinPair) => {
                     const splitPair = coinPair.split('/');
                     return (
-                        !!availablePairs.find((availablePair) => availablePair === coinPair) &&
+                        !!window.jQuery('#select_market option').map(() => jQuery(this).val()).get().find((availablePair) => availablePair === coinPair) &&
                         !result.data.find(
                             (training) =>
                                 training.strategy_id == config.strategy_id &&
@@ -120,9 +130,8 @@
                         )
                     );
                 });
-                console.log('Coins available to train: ', coinPairs.join(', '));
 
-                // Start training
+                console.log('Coins available to train: ', coinPairs.join(', '));
                 trainCoinPairs(config, coinPairs, result.total_trainings);
             },
             (error) => {
@@ -149,10 +158,9 @@
         const button = jQuery('<button type="button" class="btn waves-effect waves-light btn-primary"><i class="md md-android m-r-5"></i> Learn Allowed Coins</button>');
         const buttonGroup = jQuery('<div class="input-group pull-right"></div>');
         buttonGroup.append(button);
+        button.on('click', () => doTrainAIAllowedCoins());
 
         jQuery('#ai_training > div:nth-child(1) > div > div > div > div.col-md-8.col-lg-9 > div').append(buttonGroup);
-
-        button.on('click', () => doTrainAIAllowedCoins());
     }
 
     jQuery(document).ready(() => addElements());
