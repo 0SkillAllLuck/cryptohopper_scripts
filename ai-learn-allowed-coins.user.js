@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Learn allowed coins
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-learn-allowed-coins.user.js
-// @version      0.2
+// @version      0.3
 // @description  Add a learn allowed coins option to CryptoHopper AI training page
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -117,10 +117,17 @@
                 id: config.id,
             },
             (result) => {
+                const availablePairs = window
+                    .jQuery('#select_market option')
+                    .map(function () {
+                        return jQuery(this).val();
+                    })
+                    .get();
+
                 coinPairs = coinPairs.filter((coinPair) => {
                     const splitPair = coinPair.split('/');
                     return (
-                        !!window.jQuery('#select_market option').map(() => jQuery(this).val()).get().find((availablePair) => availablePair === coinPair) &&
+                        !!availablePairs.find((availablePair) => availablePair === coinPair) &&
                         !result.data.find(
                             (training) =>
                                 training.strategy_id == config.strategy_id &&
