@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Learn allowed coins
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-learn-allowed-coins.user.js
-// @version      0.3
+// @version      0.4
 // @description  Add a learn allowed coins option to CryptoHopper AI training page
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -31,10 +31,8 @@
             swal({
                 type: 'error',
                 title: 'Full queue',
-                text: "Training queue filled up! Remaining coins: ${pairsRemaining}",
-                showConfirmButton: false,
-                timer: 1250,
-                timerProgressBar: true,
+                text: `Training queue filled up! Remaining coins: ${pairsRemaining}`,
+                showConfirmButton: true,
             })
             return finishTraining(currentQueueSize);
         }
