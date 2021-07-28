@@ -101,11 +101,11 @@
         swal({
             title: 'Options',
             html:
-                '<input id="swal-input-tp" class="swal2-input" placeholder="TP List, either comma sperated or like \"0.0-2.0|0.1\">' +
-                '<input id="swal-input-sl" class="swal2-input" placeholder="SL List, either comma sperated or like \"0.0-2.0|0.1\">' +
-                '<input id="swal-input-tsl" class="swal2-input" placeholder="TSL List, either comma sperated or like \"0.0-2.0|0.1\">' +
-                '<input id="swal-input-arm" class="swal2-input" placeholder="TSL Arm List, either comma sperated or like \"0.0-2.0|0.1\">' +
-                '<input id="swal-input-tsb" class="swal2-input" placeholder="TSB List, either comma sperated or like \"0.0-2.0|0.1\">',
+                '<input id="swal-input-tp" class="swal2-input" placeholder="TP List, either comma sperated or like 0.0-2.0|0.1">' +
+                '<input id="swal-input-sl" class="swal2-input" placeholder="SL List, either comma sperated or like 0.0-2.0|0.1">' +
+                '<input id="swal-input-tsl" class="swal2-input" placeholder="TSL List, either comma sperated or like 0.0-2.0|0.1">' +
+                '<input id="swal-input-arm" class="swal2-input" placeholder="TSL Arm List, either comma sperated or like 0.0-2.0|0.1">' +
+                '<input id="swal-input-tsb" class="swal2-input" placeholder="TSB List, either comma sperated or like 0.0-2.0|0.1">',
             showCancelButton: true,
             preConfirm: () => {
                 return {
