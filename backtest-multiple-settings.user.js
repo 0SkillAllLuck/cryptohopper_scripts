@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtest multiple settings
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtest-multiple-settings.user.js
-// @version      0.2
+// @version      0.3
 // @description  Add a "Backtest multiple settings" button to the Backtest Page.
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
@@ -79,34 +79,33 @@
         if (input == undefined || input.trim() === '') {
             return []
         }
-        if (input.includes(',')) {
-            return input.split(',');
-        }
+        if (input.includes('|')) {
+            const inputParts = input.split('|');
+            const range = inputParts[0].split('-');
+            const down = parseFloat(range[0]);
+            const up = parseFloat(range[1]);
+            const step = parseFloat(inputParts[1]);
 
-        const inputParts = input.split('|');
-        const range = inputParts[0].split('-');
-        const down = parseFloat(range[0]);
-        const up = parseFloat(range[1]);
-        const step = parseFloat(inputParts[1]);
-        
-        let current = down;
-        let steps = [];
-        while (current < up) {
-            steps.push(current.toString());
-            current += step;
+            let current = down;
+            let steps = [];
+            while (current < up) {
+                steps.push(current.toString());
+                current += step;
+            }
+            return steps
         }
-        return steps
+        return input.split(',');
     }
 
     function doBacktestMultipleSettings() {
         swal({
             title: 'Options',
             html:
-                '<input id="swal-input-tp" class="swal2-input" placeholder="TP List, either comma sperated or like "0.0-2.0|0.1">' +
-                '<input id="swal-input-sl" class="swal2-input" placeholder="SL List, either comma sperated or like "0.0-2.0|0.1">' +
-                '<input id="swal-input-tsl" class="swal2-input" placeholder="TSL List, either comma sperated or like "0.0-2.0|0.1">' +
-                '<input id="swal-input-arm" class="swal2-input" placeholder="TSL Arm List, either comma sperated or like "0.0-2.0|0.1">' +
-                '<input id="swal-input-tsb" class="swal2-input" placeholder="TSB List, either comma sperated or like "0.0-2.0|0.1">',
+                '<input id="swal-input-tp" class="swal2-input" placeholder="TP List, either comma sperated or like \"0.0-2.0|0.1\">' +
+                '<input id="swal-input-sl" class="swal2-input" placeholder="SL List, either comma sperated or like \"0.0-2.0|0.1\">' +
+                '<input id="swal-input-tsl" class="swal2-input" placeholder="TSL List, either comma sperated or like \"0.0-2.0|0.1\">' +
+                '<input id="swal-input-arm" class="swal2-input" placeholder="TSL Arm List, either comma sperated or like \"0.0-2.0|0.1\">' +
+                '<input id="swal-input-tsb" class="swal2-input" placeholder="TSB List, either comma sperated or like \"0.0-2.0|0.1\">',
             showCancelButton: true,
             preConfirm: () => {
                 return {
@@ -180,4 +179,22 @@
     }
 
     jQuery(document).ready(() => addElements());
+
+    jQuery(() => {
+        if ($("body").hasClass("nightmode")) {
+            GM_addStyle(`
+                body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div {
+                    background-color: #303054 !important
+                }
+                .swal2-title {
+                    color: white !important;
+                }
+            `);
+        }
+        GM_addStyle(`
+            .swal2-input::placeholder {
+                color: darkgray !important;
+            }
+        `);
+    });
 })();
