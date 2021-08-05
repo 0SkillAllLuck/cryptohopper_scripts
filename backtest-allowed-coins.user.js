@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtest allowed coins
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtest-allowed-coins.user.js
-// @version      0.2
+// @version      0.3
 // @description  Add a "Backtest allowed Coins" button to the Backtest Page.
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
@@ -20,7 +20,8 @@
     result_chart_data_markings = [],
     redrawChart("nottest")) : "resettradestest" == d.type ? (jQuery("#result_trades_table_test tbody tr").remove(),result_chart_data_markings = [],redrawChart("test")) : "result" == d.type ? outputBackTest(d.result) : "resulttest" == d.type ? outputConfigTest(d.result) : "error" == d.type && backtestErrorMessage(d.error)
 
-        if (d.type == "result" || d.type == "resulttest") {
+        console.log(d)
+        if (d.type == "result" || d.type == "resulttest" || (d.type == "error" && d.error.match(".* chart not found."))) {
             const currentList = jQuery('#coinList').val().split(",");
             const currentIndex = parseInt(jQuery('#coinIndex').val());
             if (currentIndex < currentList.length) {
