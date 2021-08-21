@@ -2,13 +2,13 @@
 // @name         CryptoHopper Coin List Import / Exporter
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/coin-list-import-export.user.js
-// @version      0.2
+// @version      0.3
 // @description  Add an import / export option for the coin list on the Crypto Hopper Hopper config page
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/config
 // @icon         https://www.google.com/s2/favicons?domain=www.cryptohopper.com
 // @grant        GM.setClipboard
-// @grant        GM.getClipboard
+// @grant        GM_addStyle
 // ==/UserScript==
 
 (function () {
@@ -59,5 +59,26 @@
     jQuery(document).ready(() => {
         jQuery('.page-title-box .dropdown-menu').append(createButton('upload', 'Export Coinlist', () => exportCoinList()));
         jQuery('.page-title-box .dropdown-menu').append(createButton('download', 'Import Coinlist', () => importCoinList()));
+    });
+
+    jQuery(() => {
+        if ($("body").hasClass("nightmode")) {
+            GM_addStyle(`
+                body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div {
+                    background-color: #303054 !important
+                }
+                .swal2-title {
+                    color: white !important;
+                }
+            `);
+        }
+        GM_addStyle(`
+            .swal2-textarea {
+                color: darkgray !important;
+            }
+            .swal2-textarea::placeholder {
+                color: darkgray !important;
+            }
+        `);
     });
 })();
