@@ -2,7 +2,7 @@
 // @name         CryptoHopper Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ch-enhancements.user.js
-// @version      0.1
+// @version      0.2
 // @description  Enhance the Cryptohopper experience
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/*
@@ -56,7 +56,13 @@ window.addEventListener('beforescriptexecute', function(e) {
                 display: none !important;
             }
 
-            .swal2-input::placeholder {
+            .swal2-input,
+            .swal2-textarea {
+                color: black !important;
+            }
+
+            .swal2-input::placeholder,
+            .swal2-textarea::placeholder {
                 color: darkgray !important;
             }
         `);
