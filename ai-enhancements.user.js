@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-enhancements.user.js
-// @version      0.1
+// @version      0.2
 // @description  Enhance the AI experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -12,7 +12,7 @@
 // @grant        GM.setValue
 // ==/UserScript==
 
-const apiActionDelay = 400;
+const apiActionDelay = 550;
 
 (function () {
     'use strict';
@@ -23,7 +23,9 @@ const apiActionDelay = 400;
     async function enhanceEditorPage() {
         jQuery('#table_strategies > thead > tr > th:nth-child(3)').css("width", "40%")
         jQuery('#table_strategies > thead > tr > th:nth-child(4)').html('Score<br/>Buy Down/Neutral/Up<br/>Sell Down/Neutral/Up').css("width", "25%")
-        await new Promise(resolve => setTimeout(resolve, apiActionDelay))
+
+        await acquireLock('ai-enhancements/editor')
+
         for await (const strat of jQuery('#table_strategies > tbody > tr')) {
             const split = strat.id.split('_');
             const strategy_id = split[2];
@@ -43,6 +45,8 @@ const apiActionDelay = 400;
                     }
                 });
         }
+
+        await GM.setValue('0SkillAllLuck_API_Lock', '{}');
     }
 
     async function enhanceTrainingPage() {
@@ -120,35 +124,36 @@ const apiActionDelay = 400;
                 showConfirmButton: false
             })
         }
-
-        return new Promise((resolve, reject) => doApiCall('loadaitraining',{id: config.id}, result => resolve(result), error => reject(error)))
-            .catch(async error => console.error(error))
-                .catch(async error => swal({ 
-                    type: 'error',
-                    title: 'Error', 
-                    text: error
-                }))
-                .then(async result => {
-                    const availablePairs = jQuery('#select_market option') .map(function () { return jQuery(this).val(); }).get();
-                    coinPairs = coinPairs.filter((coinPair) => {
-                        const splitPair = coinPair.split('/');
-                        return (
-                            !!availablePairs.find((availablePair) => availablePair === coinPair) &&
-                            !result.data.find(
-                                (training) =>
-                                    training.strategy_id == config.strategy_id &&
-                                    training.exchange == config.exchange &&
-                                    training.pair.includes(splitPair[0]) &&
-                                    training.pair.includes(splitPair[1])
-                            )
-                        );
-                    });
-
-                    await GM.setValue('0SkillAllLuck_AI_Enhancement_' + jQuery('#ai_id').val(), JSON.stringify({
-                        remaining: coinPairs,
-                    }));
-                    return trainCoinPairs(config, coinPairs, result.total_trainings);
+        
+        await acquireLock('ai-enhancements/train')
+        await new Promise((resolve, reject) => doApiCall('loadaitraining',{id: config.id}, result => resolve(result), error => reject(error)))
+            .catch(async error => swal({ 
+                type: 'error',
+                title: 'Error', 
+                text: error
+            }))
+            .then(async result => {
+                const availablePairs = jQuery('#select_market option') .map(function () { return jQuery(this).val(); }).get();
+                coinPairs = coinPairs.filter((coinPair) => {
+                    const splitPair = coinPair.split('/');
+                    return (
+                        !!availablePairs.find((availablePair) => availablePair === coinPair) &&
+                        !result.data.find(
+                            (training) =>
+                                training.strategy_id == config.strategy_id &&
+                                training.exchange == config.exchange &&
+                                training.pair.includes(splitPair[0]) &&
+                                training.pair.includes(splitPair[1])
+                        )
+                    );
                 });
+
+                await GM.setValue('0SkillAllLuck_AI_Enhancement_' + jQuery('#ai_id').val(), JSON.stringify({
+                    remaining: coinPairs,
+                }));
+                return trainCoinPairs(config, coinPairs, result.total_trainings);
+            });
+        await GM.setValue('0SkillAllLuck_API_Lock', '{}');
     }
 
     async function trainCoinPairs(config, coinPairs, currentQueueSize) {
@@ -203,14 +208,33 @@ const apiActionDelay = 400;
 
     async function deleteAITrainings() {
         jQuery('#deleteAITrainingsButton').html('<i class="fa fa-refresh fa-spin m-r-5"></i>');
+        await acquireLock('ai-enhancements/delete')
+
         for await (const button of jQuery('#current_ai_trainings > table > tbody > tr > td:nth-child(5) > button')) {
             await new Promise(resolve => setTimeout(resolve, apiActionDelay)).then(() => button.click());
         }
+
+        await GM.setValue('0SkillAllLuck_API_Lock', '{}');
         jQuery('#deleteAITrainingsButton').html('<i class="fa fa-times"></i>');
         return swal({
             type: 'success',
             title: 'Trainings Deleted',
             text: 'All trainings deleted, consider reseting this AI now.'
         });
+    }
+
+    async function acquireLock(scriptName) {
+        var hasLock = false;
+        while(!hasLock) {
+            const lock = JSON.parse(await GM.getValue('0SkillAllLuck_API_Lock', '{}'));
+            if (!lock.script || lock.timeout < Date.now()) {
+                await GM.setValue('0SkillAllLuck_API_Lock', JSON.stringify({
+                    script: scriptName,
+                    timeout: Date.now() + 30000,
+                }));
+                hasLock = true;
+            }
+            await new Promise(resolve => setTimeout(resolve, apiActionDelay));
+        }
     }
 })();
