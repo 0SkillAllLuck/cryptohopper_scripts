@@ -5,6 +5,12 @@ TamperMonkey scripts to improve the Cryptohopper experience
 
 *Like these scripts? Consider sponsoring via the sponsor button.*
 
+# ⚠️ Warning: ⚠️
+
+> User scripts have access to your browser window, they can manipulate elements on a financial site while you are logged in. Please read and understand what the code is doing before you run it!
+
+You are responsible for the code you run on your own computer. By downloading and executing this script you take responsibility for anything it may do, so please read and understand the code *before* installing it.
+
 # Installation
 
 1. Install [TamperMonkey](https://www.tampermonkey.net/).
@@ -13,7 +19,7 @@ TamperMonkey scripts to improve the Cryptohopper experience
 
 ## [Enhancements](https://raw.githubusercontent.com/0SkillAllLuck/cryptohopper_scripts/main/enhancements.user.js)
 
-- Disable Hoppie (Firefox only)
+- Disable Hoppie (Firefox only), falling back to hiding Hoppie in Chrome
 - Disable Chat (Firefox only)
 - Popup Darkmode
 
