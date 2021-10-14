@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtesting Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtesting-enhancements.user.js
-// @version      0.1
+// @version      0.2
 // @description  Enhance the Backtesting experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
@@ -150,6 +150,9 @@ let state = {
                         $("#coin_test").val(state.coinList[state.coinIndex]).change();
                         setTimeout(function(){ startBackTestConfig(); }, 1500);
                     } else {
+                        state = {
+                            mode: "none"
+                        }
                         $('#statusAllowedCoins').html(`Finished backtesting allowed coins`)
                         swal({
                             type: 'success',
@@ -186,6 +189,9 @@ let state = {
                                     state.tsbIndex += 1;
                                     if (state.tsbIndex >= tsbs) {
                                         swal({ title: 'Success', text: 'Backtest completed, all settings were tested!', type: 'success' });
+                                        state = {
+                                            mode: "none"
+                                        }
                                         return;
                                     }
                                 }
@@ -214,15 +220,6 @@ let state = {
                     jQuery('#multiStatus').html('<strong>' + percent + '%</strong> backtested: ' + current + '/' + totalBacktests)
                     setTimeout(function () { startBackTestConfig(); }, 2000);
                     break;
-                default:
-                    state = {
-                        mode: "none"
-                    }
-                    break;
-            }
-
-            state = {
-                mode: "none"
             }
             $('#stateBuys').val("0").change();
             $('#stateSells').val("0").change();
