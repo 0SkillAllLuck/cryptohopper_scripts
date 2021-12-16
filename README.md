@@ -32,6 +32,7 @@ You are responsible for the code you run on your own computer. By downloading an
 - Show detailed stats on editor
 - Learn allowed coins
 - Delete all learnings
+- Show all trained markets
 
 ## [Backtesting Enhancements](https://raw.githubusercontent.com/0SkillAllLuck/cryptohopper_scripts/main/backtesting-enhancements.user.js)
 

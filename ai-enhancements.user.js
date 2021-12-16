@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-enhancements.user.js
-// @version      0.2
+// @version      0.3
 // @description  Enhance the AI experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -19,6 +19,7 @@ const apiActionDelay = 550;
 
     jQuery(document).ready(async() => enhanceEditorPage());
     jQuery(document).ready(async() => enhanceTrainingPage());
+    jQuery(document).ready(async() => enhanceResultsPage());
 
     async function enhanceEditorPage() {
         jQuery('#table_strategies > thead > tr > th:nth-child(3)').css("width", "40%")
@@ -58,6 +59,10 @@ const apiActionDelay = 550;
 
         jQuery('#ai_training > div:nth-child(1) > div > div > div > div.col-md-8.col-lg-9 > div > div:nth-child(1) > span').append(learnAllowedCoinsButton);
         jQuery('#ai_training > div:nth-child(3) > div > div > div.row > div.col-xs-8.text-right').prepend(deleteAITrainignsButton);
+    }
+
+    async function enhanceResultsPage() {
+        jQuery('#best_scoring_markets_table tr').show();
     }
 
     async function learnAllowedCoins() {
