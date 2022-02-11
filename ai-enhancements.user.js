@@ -2,7 +2,7 @@
 // @name         CryptoHopper AI Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/ai-enhancements.user.js
-// @version      0.3
+// @version      0.4
 // @description  Enhance the AI experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/strategies?edit_ai*
@@ -71,8 +71,9 @@ const apiActionDelay = 550;
         learnAllowedCoinsButton.prop('disabled', true);
 
         return GM.getValue('0SkillAllLuck_AI_Enhancement_' + jQuery('#ai_id').val(), '{}')
+            .then(state => JSON.parse(state))
             .then(state => {
-                if (!state.remaining || state.remaining.size() == 0) {
+                if (!state.remaining || state.remaining.length == 0) {
                     return startTrainingAllowed();
                 }
         
