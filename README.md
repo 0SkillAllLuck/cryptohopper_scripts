@@ -19,8 +19,8 @@ You are responsible for the code you run on your own computer. By downloading an
 
 ## [Enhancements](https://raw.githubusercontent.com/0SkillAllLuck/cryptohopper_scripts/main/enhancements.user.js)
 
-- Disable Hoppie (Firefox only), falling back to hiding Hoppie in Chrome
-- Disable Chat (Firefox only)
+- Disable Chat, if unsupported hide it
+- Disable Analytics (will be done by most browsers but this way saves time and bandwidth), if unsupported browsers will block it on network level.
 - Popup Darkmode
 
 ## [AI Enhancements](https://raw.githubusercontent.com/0SkillAllLuck/cryptohopper_scripts/main/ai-enhancements.user.js)
