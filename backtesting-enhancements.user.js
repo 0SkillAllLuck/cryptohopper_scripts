@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtesting Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtesting-enhancements.user.js
-// @version      0.2
+// @version      0.3
 // @description  Enhance the Backtesting experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
@@ -19,7 +19,7 @@ let state = {
 
 (function () {
     'use strict';
-    
+
     $(document).ready(() => enhanceBacktestingPage());
 
     async function enhanceBacktestingPage() {
@@ -42,14 +42,14 @@ let state = {
         backtestMultipleSettingsButton.insertAfter($('#submitConfigTest'));
 
         // TODO Stats(Drawdown, Profit, etc.) Settings
-        
+
         var overrideScript = document.createElement('script');
         overrideScript.innerHTML = socketMessagesHandler.toString().replace(/([\s\S]*?return;){2}([\s\S]*)}/, '$2');
         document.body.appendChild(overrideScript);
     };
 
     function backtestAllowedCoins() {
-        return $.get('https://www.cryptohopper.com/config', function(data) {
+        return $.get('https://www.cryptohopper.com/config', function (data) {
             const info = $('<div class="alert alert-info alert-dismissable" id="statusAllowedCoins">Starting tests</div>');
             $('#component_content > div:nth-child(5) > div').html(info);
             state = {
@@ -102,22 +102,42 @@ let state = {
                 tsbIndex: 0
             }
 
-
             const tps = state.tpList.length;
-            const sls = state.tpList.length;
-            const tsls = state.tpList.length;
+            const sls = state.slList.length;
+            const tsls = state.tslList.length;
             const arms = state.armList.length;
             const tsbs = state.tsbList.length;
-            const totalBacktests = (tps > 0 ? tps : 1) * (sls > 0 ? sls : 1) * (tsls > 0 ? tsls : 1) * (arms > 0 ? arms : 1) * (tsbs > 0 ? tsbs : 1);
+            state.current = 0;
+            state.total = (tps > 0 ? tps : 1) *
+                (sls > 0 ? sls : 1) *
+                (tsls > 0 ? tsls : 1) *
+                (arms > 0 ? arms : 1) *
+                (tsbs > 0 ? tsbs : 1);
 
             jQuery('#stop_loss_test').val((sls > 0)).change()
             jQuery('#stop_loss_trailing_test').val((tsls > 0)).change()
             jQuery('#trailing_buy_test').val((tsbs > 0)).change()
+            
+            if (state.tpList.length > 0) {
+                jQuery("#percentage_profit_test").val(state.tpList[state.tpIndex]).change();
+            }
+            if (state.slList.length > 0) {
+                jQuery("#stop_loss_percentage_test").val(state.slList[state.slIndex]).change();
+            }
+            if (state.tslIndex.length > 0) {
+                jQuery("#stop_loss_trailing_percentage_test").val(state.tsList[state.tslIndex]).change();
+            }
+            if (state.armList.length > 0) {
+                jQuery("#stop_loss_trailing_arm_test").val(state.armList[state.armIndex]).change();
+            }
+            if (state.tsbList.length > 0) {
+                jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
+            }
 
             return swal({
                 type: 'question',
                 title: 'Continue?',
-                text: 'You will run ' + totalBacktests + ' backtests, do you want to continue?',
+                text: 'You will run ' + state.total + ' backtests, do you want to continue?',
                 showCancelButton: true,
             });
         }).then((result) => {
@@ -127,14 +147,17 @@ let state = {
 
             const info = jQuery('<div class="alert alert-info alert-dismissable" id="multiStatus">Starting tests</div>');
             jQuery('#component_content > div:nth-child(5) > div').html(info)
-            setTimeout(function () { startBackTestConfig(); }, 2000);
+            setTimeout(function () {
+                state.startTime = new Date().getTime();
+                startBackTestConfig(); 
+            }, 100);
         });
     }
 
     function callback(event, jqXHR, ajaxOptions) {
         if (ajaxOptions.url !== '/siteapi.php?todo=getbacktestresult' || jqXHR.status !== 200) return;
 
-        setTimeout(function () { 
+        setTimeout(function () {
             const buys = $('#stateBuys').val();
             const sells = $('#stateSells').val();
             const left = buys - sells;
@@ -142,13 +165,13 @@ let state = {
             $(`<p><strong>Left open:</strong> <span>${left} (${percentage} %)</span></p>)`).insertAfter($('#test_result_div > div > p:nth-child(9)'));
             // TODO Stats(Drawdown, Profit, etc.) Output
 
-            switch(state.mode) {
+            switch (state.mode) {
                 case "allowedCoins":
                     if (state.coinIndex < state.coinList.length) {
                         state.coinIndex += 1;
                         $('#statusAllowedCoins').html(`Backtesting coin: ${state.coinIndex} of ${state.coinList.length}`)
                         $("#coin_test").val(state.coinList[state.coinIndex]).change();
-                        setTimeout(function(){ startBackTestConfig(); }, 1500);
+                        setTimeout(function () { startBackTestConfig(); }, 1800);
                     } else {
                         state = {
                             mode: "none"
@@ -167,27 +190,20 @@ let state = {
                     }
                     break;
                 case "multipleSettings":
-                    const tps = state.tpList.length;
-                    const sls = state.tpList.length;
-                    const tsls = state.tpList.length;
-                    const arms = state.armList.length;
-                    const tsbs = state.tsbList.length;
-                    const totalBacktests = (tps > 0 ? tps : 1) * (sls > 0 ? sls : 1) * (tsls > 0 ? tsls : 1) * (arms > 0 ? arms : 1) * (tsbs > 0 ? tsbs : 1);
-
                     state.tpIndex += 1;
-                    if (state.tpIndex >= tps) {
+                    if (state.tpIndex >= state.tpList.length) {
                         state.tpIndex = 0;
                         state.slIndex += 1;
-                        if (state.slIndex >= sls) {
+                        if (state.slIndex >= state.slList.length) {
                             state.slIndex = 0;
                             state.tslIndex += 1;
-                            if (state.tslIndex >= tsls) {
+                            if (state.tslIndex >= state.tslList.length) {
                                 state.tslIndex = 0;
                                 state.armIndex += 1;
-                                if (state.armIndex >= arms) {
+                                if (state.armIndex >= state.armList.length) {
                                     state.armIndex = 0;
                                     state.tsbIndex += 1;
-                                    if (state.tsbIndex >= tsbs) {
+                                    if (state.tsbIndex >= state.tsbList.length) {
                                         swal({ title: 'Success', text: 'Backtest completed, all settings were tested!', type: 'success' });
                                         state = {
                                             mode: "none"
@@ -214,11 +230,14 @@ let state = {
                         jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
                     }
 
-                    const current = (state.tsbIndex * arms * tsls * sls * tps) + (state.armIndex * tsls * sls * tps) + (state.tslIndex * sls * tps) + (state.slIndex * tps) + state.tpIndex;
-                    const percent = 100 * current / totalBacktests;
+                    const percent = 100 * state.current / state.total;
+                    
+                    const timeSpend = ((new Date().getTime()) - state.startTime);
+                    const timeTotal = ((state.total / state.current) * ((new Date().getTime()) - state.startTime));
+                    const eta = (timeTotal - timeSpend) / 1000;
 
-                    jQuery('#multiStatus').html('<strong>' + percent + '%</strong> backtested: ' + current + '/' + totalBacktests)
-                    setTimeout(function () { startBackTestConfig(); }, 2000);
+                    jQuery('#multiStatus').html('<strong>' + percent + '%</strong> backtested: ' + state.current++ + '/' + state.total + ". ETA: " + Math.round(eta) + " seconds");
+                    setTimeout(function () { startBackTestConfig(); }, 1250);
                     break;
             }
             $('#stateBuys').val("0").change();
