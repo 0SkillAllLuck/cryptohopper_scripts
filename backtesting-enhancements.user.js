@@ -230,13 +230,13 @@ let state = {
                         jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
                     }
 
-                    const percent = 100 * state.current / state.total;
+                    const percent = 100 * state.current++ / state.total;
                     
                     const timeSpend = ((new Date().getTime()) - state.startTime);
                     const timeTotal = ((state.total / state.current) * ((new Date().getTime()) - state.startTime));
                     const eta = (timeTotal - timeSpend) / 1000;
 
-                    jQuery('#multiStatus').html('<strong>' + percent + '%</strong> backtested: ' + state.current++ + '/' + state.total + ". ETA: " + Math.round(eta) + " seconds");
+                    jQuery('#multiStatus').html('<strong>' + percent + '%</strong> backtested: ' + state.current + '/' + state.total + ". ETA: " + Math.round(eta) + " seconds");
                     setTimeout(function () { startBackTestConfig(); }, 1250);
                     break;
             }
