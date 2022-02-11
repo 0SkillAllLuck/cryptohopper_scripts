@@ -89,7 +89,7 @@ const apiActionDelay = 550;
                         return startTrainingAllowed();
                     }
                     
-                    return JSON.parse(state).remaining;
+                    return state.remaining;
                 });
             })
             .then(async remaining => startTrainingCoinPairs(remaining))
