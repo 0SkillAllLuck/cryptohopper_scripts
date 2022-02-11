@@ -230,8 +230,7 @@ let state = {
                         jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
                     }
 
-                    const percent = 100 * state.current++ / state.total;
-                    
+                    const percent = 100 * ++state.current / state.total;
                     const timeSpend = ((new Date().getTime()) - state.startTime);
                     const timeTotal = ((state.total / state.current) * ((new Date().getTime()) - state.startTime));
                     const eta = (timeTotal - timeSpend) / 1000;
