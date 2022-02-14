@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtesting Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtesting-enhancements.user.js
-// @version      0.3
+// @version      0.4
 // @description  Enhance the Backtesting experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
@@ -13,9 +13,7 @@
 // ==/UserScript==
 
 const apiActionDelay = 550;
-let state = {
-    mode: "none"
-};
+let state = {};
 
 (function () {
     'use strict';
@@ -69,25 +67,25 @@ let state = {
         swal({
             title: 'Options',
             html:
-                '<input id="swal-input-tp" class="swal2-input" placeholder="TP List, either comma sperated or like 0.0-2.0|0.1">' +
-                '<input id="swal-input-sl" class="swal2-input" placeholder="SL List, either comma sperated or like 0.0-2.0|0.1">' +
-                '<input id="swal-input-tsl" class="swal2-input" placeholder="TSL List, either comma sperated or like 0.0-2.0|0.1">' +
-                '<input id="swal-input-arm" class="swal2-input" placeholder="TSL Arm List, either comma sperated or like 0.0-2.0|0.1">' +
-                '<input id="swal-input-tsb" class="swal2-input" placeholder="TSB List, either comma sperated or like 0.0-2.0|0.1">',
+                '<p>Enter all values either as comma seperated lists or like 0.1-2.1|0.1</br' +
+                '0.1-2.1|0.1 would test 0.1 to 2.0 in 0.1 increments</p>' +
+                '<input id="muti-tp" class="swal2-input" value="' + jQuery("#percentage_profit_test").val() + '" placeholder="TP list">' +
+                '<input id="muti-sl" class="swal2-input" value="' + jQuery("#stop_loss_percentage_test").val() + '" placeholder="SL list">' +
+                '<input id="muti-tsl" class="swal2-input" value="' + jQuery("#stop_loss_trailing_percentage_test").val() + '" placeholder="TSL list">' +
+                '<input id="muti-arm" class="swal2-input" value="' + jQuery("#stop_loss_trailing_arm_test").val() + '" placeholder="TSL Arm list">' +
+                '<input id="muti-tsb" class="swal2-input" value="' + jQuery("#trailing_buy_percentage_test").val() + '" placeholder="TSB list">',
             showCancelButton: true,
             preConfirm: () => {
                 return {
-                    tp: document.getElementById('swal-input-tp').value,
-                    sl: document.getElementById('swal-input-sl').value,
-                    tsl: document.getElementById('swal-input-tsl').value,
-                    arm: document.getElementById('swal-input-arm').value,
-                    tsb: document.getElementById('swal-input-tsb').value,
+                    tp: document.getElementById('muti-tp').value,
+                    sl: document.getElementById('muti-sl').value,
+                    tsl: document.getElementById('muti-tsl').value,
+                    arm: document.getElementById('muti-arm').value,
+                    tsb: document.getElementById('muti-tsb').value,
                 }
             }
         }).then((result) => {
-            if (result.dismiss == 'overlay' || result.dismiss == 'cancel' || !result.value) {
-                return result;
-            }
+            if (!result.value) return;
             state = {
                 mode: "multipleSettings",
                 tpList: split(result.value.tp),
@@ -99,40 +97,17 @@ let state = {
                 armList: split(result.value.arm),
                 armIndex: 0,
                 tsbList: split(result.value.tsb),
-                tsbIndex: 0
+                tsbIndex: 0,
+                current: 0,
+                total: 0,
+                startTime: new Date().getTime()
             }
-
-            const tps = state.tpList.length;
-            const sls = state.slList.length;
-            const tsls = state.tslList.length;
-            const arms = state.armList.length;
-            const tsbs = state.tsbList.length;
-            state.current = 0;
-            state.total = (tps > 0 ? tps : 1) *
-                (sls > 0 ? sls : 1) *
-                (tsls > 0 ? tsls : 1) *
-                (arms > 0 ? arms : 1) *
-                (tsbs > 0 ? tsbs : 1);
-
-            jQuery('#stop_loss_test').val((sls > 0)).change()
-            jQuery('#stop_loss_trailing_test').val((tsls > 0)).change()
-            jQuery('#trailing_buy_test').val((tsbs > 0)).change()
-            
-            if (state.tpList.length > 0) {
-                jQuery("#percentage_profit_test").val(state.tpList[state.tpIndex]).change();
-            }
-            if (state.slList.length > 0) {
-                jQuery("#stop_loss_percentage_test").val(state.slList[state.slIndex]).change();
-            }
-            if (state.tslIndex.length > 0) {
-                jQuery("#stop_loss_trailing_percentage_test").val(state.tsList[state.tslIndex]).change();
-            }
-            if (state.armList.length > 0) {
-                jQuery("#stop_loss_trailing_arm_test").val(state.armList[state.armIndex]).change();
-            }
-            if (state.tsbList.length > 0) {
-                jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
-            }
+            state.total = (state.tpList.length > 0 ? state.tpList.length : 1) *
+                (state.slList.length > 0 ? state.slList.length : 1) *
+                (state.tslList.length > 0 && state.armList.length > 0 ? state.tslList.length : 1) *
+                (state.tslList.length > 0 && state.armList.length > 0 ? state.armList.length : 1) *
+                (state.tsbList.length > 0 ? state.tsbList.length : 1);
+            updateConfig();
 
             return swal({
                 type: 'question',
@@ -141,16 +116,9 @@ let state = {
                 showCancelButton: true,
             });
         }).then((result) => {
-            if (result.dismiss == 'overlay' || result.dismiss == 'cancel' || !result.value) {
-                return false;
-            }
-
-            const info = jQuery('<div class="alert alert-info alert-dismissable" id="multiStatus">Starting tests</div>');
-            jQuery('#component_content > div:nth-child(5) > div').html(info)
-            setTimeout(function () {
-                state.startTime = new Date().getTime();
-                startBackTestConfig(); 
-            }, 100);
+            if (!result.value) return;
+            jQuery('#component_content > div:nth-child(5) > div').html(jQuery('<div class="alert alert-info alert-dismissable" id="multiStatus">Starting tests</div>'));
+            startBackTestConfig();
         });
     }
 
@@ -173,9 +141,7 @@ let state = {
                         $("#coin_test").val(state.coinList[state.coinIndex]).change();
                         setTimeout(function () { startBackTestConfig(); }, 1800);
                     } else {
-                        state = {
-                            mode: "none"
-                        }
+                        state = {}
                         $('#statusAllowedCoins').html(`Finished backtesting allowed coins`)
                         swal({
                             type: 'success',
@@ -185,9 +151,7 @@ let state = {
                     }
                     break;
                 case "multipleStrategies":
-                    state = {
-                        mode: "none"
-                    }
+                    state = {}
                     break;
                 case "multipleSettings":
                     state.tpIndex += 1;
@@ -205,30 +169,14 @@ let state = {
                                     state.tsbIndex += 1;
                                     if (state.tsbIndex >= state.tsbList.length) {
                                         swal({ title: 'Success', text: 'Backtest completed, all settings were tested!', type: 'success' });
-                                        state = {
-                                            mode: "none"
-                                        }
+                                        state = {}
                                         return;
                                     }
                                 }
                             }
                         }
                     }
-                    if (state.tpList.length > 0) {
-                        jQuery("#percentage_profit_test").val(state.tpList[state.tpIndex]).change();
-                    }
-                    if (state.slList.length > 0) {
-                        jQuery("#stop_loss_percentage_test").val(state.slList[state.slIndex]).change();
-                    }
-                    if (state.tslIndex.length > 0) {
-                        jQuery("#stop_loss_trailing_percentage_test").val(state.tsList[state.tslIndex]).change();
-                    }
-                    if (state.armList.length > 0) {
-                        jQuery("#stop_loss_trailing_arm_test").val(state.armList[state.armIndex]).change();
-                    }
-                    if (state.tsbList.length > 0) {
-                        jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
-                    }
+                    updateConfig();
 
                     const percent = 100 * ++state.current / state.total;
                     const timeSpend = ((new Date().getTime()) - state.startTime);
@@ -264,6 +212,40 @@ let state = {
             return steps
         }
         return input.split(',');
+    }
+
+    function updateConfig() {
+        if (state.tpList.length > 0) {
+            jQuery("#percentage_profit_test").val(state.tpList[state.tpIndex]).change();
+        }
+
+        if (((state.slList.length > 0) && !jQuery('#stop_loss_test').is(":checked"))
+            || (!(state.slList.length > 0) && jQuery('#stop_loss_test').is(":checked"))) {
+            jQuery('#backtest-config > div > div:nth-child(11) > div > span').click();
+        }
+        if (state.slList.length > 0) {
+            jQuery("#stop_loss_percentage_test").val(state.slList[state.slIndex]).change();
+        }
+
+        if (((state.tslList.length > 0 && state.armList.length > 0) && !jQuery('#stop_loss_trailing_test').is(":checked"))
+            || (!(state.tslList.length > 0 && state.armList.length > 0) && jQuery('#stop_loss_trailing_test').is(":checked"))) {
+            jQuery('#backtest-config > div > div:nth-child(13) > div > span').click();
+        }
+        if (state.tslList.length > 0 && state.armList.length > 0) {
+            jQuery("#stop_loss_trailing_percentage_test").val(state.tslList[state.tslIndex]).change();
+            jQuery("#stop_loss_trailing_arm_test").val(state.armList[state.armIndex]).change();
+        } else {
+            state.tslList = [];
+            state.armList = [];
+        }
+
+        if (((state.tsbList.length > 0) && !jQuery('#trailing_buy_test').is(":checked"))
+            || (!(state.tsbList.length > 0) && jQuery('#trailing_buy_test').is(":checked"))) {
+            jQuery('#backtest-config > div > div:nth-child(15) > div > span').click();
+        }
+        if (state.tsbList.length > 0) {
+            jQuery("#trailing_buy_percentage_test").val(state.tsbList[state.tsbIndex]).change();
+        }
     }
 
     function socketMessagesHandler(d) {
