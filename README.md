@@ -13,7 +13,7 @@ You are responsible for the code you run on your own computer. By downloading an
 
 # Installation
 
-1. Install [TamperMonkey](https://www.tampermonkey.net/).
+1. Install [TamperMonkey](https://www.tampermonkey.net/). *On mac and using safari? Use [Userscripts](https://apps.apple.com/ch/app/userscripts/id1463298887?l=en)* 
 2. Click on the enhancement you want to install. **Always check the code if possible before you install a script**
 3. Enjoy the enhancements to CH.
 
