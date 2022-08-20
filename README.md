@@ -50,6 +50,7 @@ You are responsible for the code you run on your own computer. By downloading an
 ![Config](https://raw.githubusercontent.com/0SkillAllLuck/cryptohopper_scripts/main/images/config.png)
 
 - Import / Export coin list from config
+- Calculate Risk Level
 
 # Bugs?
 
