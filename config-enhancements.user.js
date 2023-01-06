@@ -2,7 +2,7 @@
 // @name         CryptoHopper Config Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/config-enhancements.user.js
-// @version      0.2
+// @version      0.3
 // @description  Enhance the Config experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/config
@@ -24,9 +24,10 @@
         exportCoinlistButton.on('click', exportCoinList)
         calculateRiskLevelButton.on('click', calculateRiskLevel)
 
-        jQuery('.page-title-box .dropdown-menu').append(jQuery('<li></li>').append(importCoinlistButton))
-        jQuery('.page-title-box .dropdown-menu').append(jQuery('<li></li>').append(exportCoinlistButton))
-        jQuery('.page-title-box .dropdown-menu').append(jQuery('<li></li>').append(calculateRiskLevelButton))
+        jQuery('.c-page-heading .dropdown-menu').append(jQuery('<li class="divider"></li>'))
+        jQuery('.c-page-heading .dropdown-menu').append(jQuery('<li></li>').append(importCoinlistButton))
+        jQuery('.c-page-heading .dropdown-menu').append(jQuery('<li></li>').append(exportCoinlistButton))
+        jQuery('.c-page-heading .dropdown-menu').append(jQuery('<li></li>').append(calculateRiskLevelButton))
     }
 
     async function exportCoinList() {
@@ -172,7 +173,7 @@
     }
 
     async function calculateRiskLevelDefault() {
-        const selectedCoins = jQuery('#allowed_coins').val().length
+        const selectedCoins = jQuery('#allowed_coins').val()?.length || 0
         const buyPercentAmount = jQuery('#perc_buy_amount_calculation').text()
         const buyForce = jQuery('#min_buy_amount_force').is(':checked')
         const buyMinimum = jQuery('#min_buy_amount').val()
