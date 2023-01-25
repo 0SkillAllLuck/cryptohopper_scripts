@@ -53,9 +53,10 @@ let state = {};
             state = {
                 mode: "allowedCoins",
                 coinList: $(data).find('#allowed_coins').val(),
-                coinIndex: 1
+                coinIndex: 0
             };
-            $("#coin_test").val(state.coinList[0]).change();
+            $('#statusAllowedCoins').html(`Backtesting coin: ${state.coinIndex + 1} of ${state.coinList.length}`)
+            $("#coin_test").val(state.coinList[state.coinIndex]).change();
             startBackTestConfig();
         });
     }
@@ -137,7 +138,7 @@ let state = {};
                 case "allowedCoins":
                     if (state.coinIndex < state.coinList.length) {
                         state.coinIndex += 1;
-                        $('#statusAllowedCoins').html(`Backtesting coin: ${state.coinIndex} of ${state.coinList.length}`)
+                        $('#statusAllowedCoins').html(`Backtesting coin: ${state.coinIndex + 1} of ${state.coinList.length}`)
                         $("#coin_test").val(state.coinList[state.coinIndex]).change();
                         setTimeout(function () { startBackTestConfig(); }, 1800);
                     } else {
