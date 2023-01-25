@@ -2,7 +2,7 @@
 // @name         CryptoHopper Backtesting Enhancements
 // @namespace    https://github.com/0SkillAllLuck/cryptohopper_scripts
 // @updateUrl    https://github.com/0SkillAllLuck/cryptohopper_scripts/raw/main/backtesting-enhancements.user.js
-// @version      0.4
+// @version      0.5
 // @description  Enhance the Backtesting experience on Cryptohopper
 // @author       0SkillAllLuck
 // @match        https://www.cryptohopper.com/backtesting
